@@ -1,0 +1,11 @@
+[package]
+name = "quantum-leaks"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "API server for serving quantum entropy from FTDI MED USB QRNG devices"
+license.workspace = true
+
+[dependencies]
+feed-me-bits = { path = "../feed-me-bits" }
+rusb.workspace = true 

@@ -1,0 +1,10 @@
+[package]
+name = "feed-me-bits"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Rust implementation of MeterFeeder - FTDI MED USB QRNG driver"
+license.workspace = true
+
+[dependencies]
+rusb.workspace = true 

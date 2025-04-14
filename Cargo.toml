@@ -1,7 +1,16 @@
-[package]
-name = "chaotic-cr8ness"
+[workspace]
+members = [
+    "feed-me-bits",
+    "quantum-leaks",
+]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
+authors = ["Simon Nishi McCorkindale <simon@spinsphere.xyz>"]
+description = "Rust implementation of MeterFeeder (C++ FTDI MED USB QRNG driver) + entropy streaming/API server"
+license = "Apache-2.0"
 
-[dependencies]
+[workspace.dependencies]
 rusb = "0.9" 
