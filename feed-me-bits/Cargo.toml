@@ -1,10 +1,21 @@
 [package]
 name = "feed-me-bits"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-description = "Rust implementation of MeterFeeder - FTDI MED USB QRNG driver"
-license.workspace = true
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "Library for accessing FTDI MED USB QRNG devices"
+license = "MIT"
 
 [dependencies]
-rusb.workspace = true 
+rusb = "0.9"
+tokio = { version = "1.36", features = ["full"] }
+thiserror = "1.0"
+futures = "0.3"
+bytes = "1.5"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+
+[dev-dependencies]
+tempfile = "3.8"
+tokio-test = "0.4" 
