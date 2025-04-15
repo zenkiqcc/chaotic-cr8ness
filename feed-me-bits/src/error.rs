@@ -5,8 +5,8 @@ use std::io;
 pub enum QrngError {
     #[error("USB error: {0}")]
     UsbError(#[from] rusb::Error),
-    #[error("Device not found")]
-    DeviceNotFound,
+    #[error("Device not found: {0}")]
+    DeviceNotFound(String),
     #[error("Device not initialized")]
     DeviceNotInitialized,
     #[error("Communication error: {0}")]

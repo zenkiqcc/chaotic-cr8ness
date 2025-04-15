@@ -5,7 +5,9 @@ use std::time::Duration;
 use tracing::{info, warn, error};
 use crate::error::QrngError;
 use crate::{FTDI_VENDOR_ID, FTDI_PRODUCT_ID};
+use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct QrngDevice {
     device: Arc<Mutex<Device<Context>>>,
     descriptor: DeviceDescriptor,
@@ -22,10 +24,66 @@ impl Clone for QrngDevice {
     }
 }
 
+#[derive(Debug)]
 pub struct DeviceStatus {
     pub initialized: bool,
     pub temperature: f32,
     pub voltage: f32,
+}
+
+#[derive(Clone)]
+pub struct DeviceManager {
+    devices: Arc<Mutex<HashMap<String, QrngDevice>>>,
+}
+
+impl DeviceManager {
+    pub fn new() -> Self {
+        Self {
+            devices: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    pub async fn add_device(&self, device: QrngDevice) -> Result<String, QrngError> {
+        let serial = device.serial().await?;
+        let mut devices = self.devices.lock().await;
+        devices.insert(serial.clone(), device);
+        Ok(serial)
+    }
+
+    pub async fn remove_device(&self, serial: &str) -> Result<(), QrngError> {
+        let mut devices = self.devices.lock().await;
+        devices.remove(serial).ok_or_else(|| QrngError::DeviceNotFound(serial.to_string()))?;
+        Ok(())
+    }
+
+    pub async fn get_device(&self, serial: &str) -> Result<QrngDevice, QrngError> {
+        let devices = self.devices.lock().await;
+        devices.get(serial)
+            .cloned()
+            .ok_or_else(|| QrngError::DeviceNotFound(serial.to_string()))
+    }
+
+    pub async fn list_devices(&self) -> Vec<String> {
+        let devices = self.devices.lock().await;
+        devices.keys().cloned().collect()
+    }
+
+    pub async fn initialize_device(&self, serial: &str) -> Result<(), QrngError> {
+        let mut device = self.get_device(serial).await?;
+        device.initialize().await?;
+        self.add_device(device).await?;
+        Ok(())
+    }
+
+    pub async fn read_entropy(&self, serial: &str, size: usize) -> Result<Vec<u8>, QrngError> {
+        let device = self.get_device(serial).await?;
+        device.read_entropy(size).await
+    }
+
+    pub async fn get_device_status(&self, serial: &str) -> Result<DeviceStatus, QrngError> {
+        let device = self.get_device(serial).await?;
+        device.status().await
+    }
 }
 
 impl QrngDevice {
